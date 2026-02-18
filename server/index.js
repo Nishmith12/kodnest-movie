@@ -17,6 +17,10 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME || 'kodnest_movie',
 });
 
+app.get('/', (req, res) => {
+    res.send("API is running...");
+});
+
 db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
