@@ -83,7 +83,7 @@ app.post('/api/register', async (req, res) => {
                     return res.status(400).json({ error: 'Email already exists' });
                 }
                 console.error('Registration error:', err);
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Database error', details: err.message, code: err.code });
             }
             res.status(201).json({ message: 'User registered successfully' });
         });
