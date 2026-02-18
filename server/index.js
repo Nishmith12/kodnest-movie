@@ -21,6 +21,23 @@ app.get('/', (req, res) => {
     res.send("API is running...");
 });
 
+app.get('/api/test-db', (req, res) => {
+    const testDb = mysql.createConnection({
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'kodnest_movie',
+    });
+
+    testDb.connect((err) => {
+        if (err) {
+            return res.status(500).json({ error: 'DB Connection Failed', details: err.message });
+        }
+        res.json({ message: 'DB Connection Successful' });
+        testDb.end();
+    });
+});
+
 db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
