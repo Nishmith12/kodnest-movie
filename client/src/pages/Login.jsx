@@ -23,7 +23,8 @@ const Login = () => {
             login(res.data.user);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.error || 'Login failed');
+            console.error("Login failed:", err);
+            setError(err.response?.data?.error || err.message || 'Login failed');
         }
     };
 

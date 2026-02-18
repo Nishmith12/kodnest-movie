@@ -22,7 +22,8 @@ const Register = () => {
             await api.post('/register', formData);
             navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.error || 'Registration failed');
+            console.error("Registration failed:", err);
+            setError(err.response?.data?.error || err.message || 'Registration failed');
         }
     };
 
