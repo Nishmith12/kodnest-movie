@@ -10,13 +10,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'kodnest_movie',
     port: process.env.DB_PORT || 14078,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    waitForConnections: true,
+    connectionLimit: 5,
+    queueLimit: 0
 });
 
 app.get('/', (req, res) => {
@@ -24,33 +27,27 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/test-db', (req, res) => {
-    const testDb = mysql.createConnection({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'kodnest_movie',
-        port: process.env.DB_PORT || 14078,
-        ssl: { rejectUnauthorized: false }
-    });
-
-    testDb.connect((err) => {
+    db.query('SELECT 1', (err, results) => {
         if (err) {
+            console.error("Test DB Error:", err);
             return res.status(500).json({ error: 'DB Connection Failed', details: err.message });
         }
-        res.json({ message: 'DB Connection Successful' });
-        testDb.end();
+        res.json({ message: 'DB Connection Successful via Pool' });
     });
 });
 
-db.connect((err) => {
+// Test connection on startup
+db.getConnection((err, connection) => {
     if (err) {
         console.error('Database connection failed:', err);
-        return;
+    } else {
+        console.log('Connected to MySQL database');
+        connection.release();
     }
-    console.log('Connected to MySQL database');
+});
 
-    // Create table if not exists
-    const createTableQuery = `
+// Create table if not exists
+const createTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
@@ -60,13 +57,12 @@ db.connect((err) => {
     )
   `;
 
-    db.query(createTableQuery, (err, result) => {
-        if (err) {
-            console.error('Error creating users table:', err);
-        } else {
-            console.log('Users table ready');
-        }
-    });
+db.query(createTableQuery, (err, result) => {
+    if (err) {
+        console.error('Error creating users table:', err);
+    } else {
+        console.log('Users table ready');
+    }
 });
 
 // Register API
