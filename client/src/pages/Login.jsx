@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
+import { useAuth } from '../AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const Login = () => {
     });
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,8 +19,8 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/login', formData);
-            // Store user info if needed, e.g., localStorage.setItem('user', JSON.stringify(res.data.user));
+            const res = await api.post('/login', formData);
+            login(res.data.user);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Login failed');
