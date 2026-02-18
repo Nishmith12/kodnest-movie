@@ -15,6 +15,8 @@ const db = mysql.createConnection({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'kodnest_movie',
+    port: process.env.DB_PORT || 14078,
+    ssl: { rejectUnauthorized: false }
 });
 
 app.get('/', (req, res) => {
@@ -27,6 +29,8 @@ app.get('/api/test-db', (req, res) => {
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'kodnest_movie',
+        port: process.env.DB_PORT || 14078,
+        ssl: { rejectUnauthorized: false }
     });
 
     testDb.connect((err) => {
